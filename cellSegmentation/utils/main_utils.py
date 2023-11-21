@@ -1,37 +1,45 @@
- import os
- import sys 
- import yaml 
- import base64
- 
- from cellSegmentation.logger import logging 
- from cellSegmentation.exception import AppException
- 
- def read_yaml_file(file_path: str) -> dict:
-     try:
-         with open(file_path, "rb") as f:
-             logging.info(f"Read yaml file successfully ")
-             return yaml.safe_load(f)
+import base64
+import os.path
+import sys
+
+import yaml
+
+from cellSegmentation.exception import AppException
+from cellSegmentation.logger import logging
+
+
+def read_yaml_file(file_path: str) -> dict:
+    try:
+        with open(file_path, "rb") as yaml_file:
+            logging.info("Read yaml file successfully")
+            return yaml.safe_load(yaml_file)
+
     except Exception as e:
         raise AppException(e, sys) from e
 
-def write_yaml_file(file_path: str, content: object, replace: bool=False) -> None:
+
+def write_yaml_file(file_path: str, content: object, replace: bool = False) -> None:
     try:
         if replace:
-            is os.path.exists(file_path):
+            if os.path.exists(file_path):
                 os.remove(file_path)
+
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        
-        with open(file_path, "w") as f:
-            yaml.dump(content, f)
-            logging.info(f"Successfully write yaml file")
+
+        with open(file_path, "w") as file:
+            yaml.dump(content, file)
+            logging.info("Successfully write_yaml_file")
+
     except Exception as e:
         raise AppException(e, sys)
-    
-def decodeImage(imgstring, file_name):
+
+
+def decodeImage(imgstring, fileName):
     imgdata = base64.b64decode(imgstring)
-    with open("./data" + file_name, "wb") as f:
+    with open("./data/" + fileName, "wb") as f:
         f.write(imgdata)
         f.close()
+
 
 def encodeImageIntoBase64(croppedImagePath):
     with open(croppedImagePath, "rb") as f:
